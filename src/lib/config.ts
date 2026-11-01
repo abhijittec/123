@@ -4,7 +4,8 @@ export const EVENT = {
   title: "SAI CHETHANA DIWALI CELEBRATION 2026",
   shortTitle: "Happy Diwali 2026",
   apartment: "SAI CHETHANA APARTMENT",
-  tagline: "One Community, One Celebration, A Thousand Lights",
+  tagline: "✨ ONE COMMUNITY. ONE SPARK! ✨",
+  taglineSupport: "Together We Shine, Together We Celebrate.",
   /** Event start in Asia/Kolkata */
   dateISO: "2026-11-06T19:00:00+05:30",
   dateLabel: "6 November 2026",
