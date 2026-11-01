@@ -47,16 +47,22 @@ type RegistrationRow = {
   flat_number_display: string;
   resident_name: string | null;
   head_count: number;
+  kids_under_10: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 };
 
 type AdminStats = {
-  stats: { totalFlats: number; totalParticipants: number };
+  stats: {
+    totalFlats: number;
+    totalParticipants: number;
+    totalKidsUnder10: number;
+  };
   totals: {
     activeFlats: number;
     inactiveFlats: number;
+    totalKidsUnder10: number;
     averageHeadCount: number;
   };
   byDay: { date: string; count: number }[];
@@ -83,6 +89,7 @@ export function AdminDashboard() {
   const [editFlat, setEditFlat] = useState("");
   const [editName, setEditName] = useState("");
   const [editHead, setEditHead] = useState(1);
+  const [editKids, setEditKids] = useState(0);
   const [saving, setSaving] = useState(false);
 
   const load = useCallback(async (q?: string) => {
@@ -136,6 +143,7 @@ export function AdminDashboard() {
     setEditFlat(row.flat_number_display);
     setEditName(row.resident_name ?? "");
     setEditHead(row.head_count);
+    setEditKids(row.kids_under_10 ?? 0);
   }
 
   async function saveEdit() {
@@ -149,6 +157,7 @@ export function AdminDashboard() {
           flatNumber: editFlat,
           residentName: editName || null,
           headCount: editHead,
+          kidsUnder10: editKids,
         }),
       });
       if (!res.ok) {
@@ -237,10 +246,14 @@ export function AdminDashboard() {
         </p>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {[
           { label: "Flats Registered", value: stats?.stats.totalFlats ?? 0 },
           { label: "Participants", value: stats?.stats.totalParticipants ?? 0 },
+          {
+            label: "Kids Under 10",
+            value: stats?.stats.totalKidsUnder10 ?? stats?.totals.totalKidsUnder10 ?? 0,
+          },
           { label: "Inactive / Removed", value: stats?.totals.inactiveFlats ?? 0 },
           { label: "Avg Head Count", value: stats?.totals.averageHeadCount ?? 0 },
         ].map((card) => (
@@ -335,6 +348,7 @@ export function AdminDashboard() {
                 <TableHead>Flat</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Head Count</TableHead>
+                <TableHead>Kids &lt; 10</TableHead>
                 <TableHead>Registered</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -343,7 +357,7 @@ export function AdminDashboard() {
             <TableBody>
               {rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-10 text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
                     No registrations found.
                   </TableCell>
                 </TableRow>
@@ -355,6 +369,7 @@ export function AdminDashboard() {
                     </TableCell>
                     <TableCell>{row.resident_name || "—"}</TableCell>
                     <TableCell>{row.head_count}</TableCell>
+                    <TableCell>{row.kids_under_10 ?? 0}</TableCell>
                     <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
                       {formatWhen(row.created_at)}
                     </TableCell>
@@ -434,7 +449,23 @@ export function AdminDashboard() {
                 min={1}
                 max={30}
                 value={editHead}
-                onChange={(e) => setEditHead(Number(e.target.value))}
+                onChange={(e) => {
+                  const next = Number(e.target.value);
+                  setEditHead(next);
+                  setEditKids((kids) => Math.min(kids, next));
+                }}
+                className="border-gold/25 bg-navy-deep/50"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-kids">Kids Under 10</Label>
+              <Input
+                id="edit-kids"
+                type="number"
+                min={0}
+                max={editHead || 30}
+                value={editKids}
+                onChange={(e) => setEditKids(Number(e.target.value))}
                 className="border-gold/25 bg-navy-deep/50"
               />
             </div>

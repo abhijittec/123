@@ -67,6 +67,7 @@ export async function POST(request: Request) {
     const result = await createRegistration({
       flatNumber: parsed.data.flatNumber,
       headCount: parsed.data.headCount,
+      kidsUnder10: parsed.data.kidsUnder10 ?? 0,
       residentName: parsed.data.residentName ?? null,
     });
 

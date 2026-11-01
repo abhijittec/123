@@ -5,6 +5,29 @@ import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import { generateEditToken, hashEditToken, verifyEditToken } from "@/lib/tokens";
 import type { CommunityStats, PublicRegistrationView } from "@/types";
 
+const PUBLIC_SELECT =
+  "id, flat_number_display, resident_name, head_count, kids_under_10, updated_at";
+const ADMIN_SELECT =
+  "id, event_id, flat_number, flat_number_display, resident_name, head_count, kids_under_10, is_active, created_at, updated_at";
+
+function toPublicView(data: {
+  id: string;
+  flat_number_display: string;
+  resident_name: string | null;
+  head_count: number;
+  kids_under_10: number;
+  updated_at: string;
+}): PublicRegistrationView {
+  return {
+    id: data.id,
+    flatNumber: data.flat_number_display,
+    residentName: data.resident_name,
+    headCount: data.head_count,
+    kidsUnder10: data.kids_under_10,
+    updatedAt: data.updated_at,
+  };
+}
+
 export async function getCommunityStats(): Promise<CommunityStats> {
   const admin = getSupabaseAdmin();
   const eventId = getEventId();
@@ -22,6 +45,7 @@ export async function getCommunityStats(): Promise<CommunityStats> {
   return {
     totalFlats: Number(row?.total_flats ?? 0),
     totalParticipants: Number(row?.total_participants ?? 0),
+    totalKidsUnder10: Number(row?.total_kids_under_10 ?? 0),
     updatedAt: new Date().toISOString(),
   };
 }
@@ -29,6 +53,7 @@ export async function getCommunityStats(): Promise<CommunityStats> {
 export async function createRegistration(input: {
   flatNumber: string;
   headCount: number;
+  kidsUnder10: number;
   residentName: string | null;
 }): Promise<{ registration: PublicRegistrationView; editToken: string }> {
   const admin = getSupabaseAdmin();
@@ -47,8 +72,7 @@ export async function createRegistration(input: {
     .maybeSingle();
 
   if (existing) {
-    const err = new Error("ALREADY_REGISTERED");
-    throw err;
+    throw new Error("ALREADY_REGISTERED");
   }
 
   const { data, error } = await admin
@@ -59,12 +83,11 @@ export async function createRegistration(input: {
       flat_number_display: flatDisplay,
       resident_name: input.residentName,
       head_count: input.headCount,
+      kids_under_10: input.kidsUnder10,
       edit_token_hash: editTokenHash,
       is_active: true,
     })
-    .select(
-      "id, flat_number_display, resident_name, head_count, updated_at",
-    )
+    .select(PUBLIC_SELECT)
     .single();
 
   if (error) {
@@ -75,13 +98,7 @@ export async function createRegistration(input: {
   }
 
   return {
-    registration: {
-      id: data.id,
-      flatNumber: data.flat_number_display,
-      residentName: data.resident_name,
-      headCount: data.head_count,
-      updatedAt: data.updated_at,
-    },
+    registration: toPublicView(data),
     editToken,
   };
 }
@@ -93,9 +110,7 @@ export async function getRegistrationByEditToken(token: string) {
 
   const { data, error } = await admin
     .from("registrations")
-    .select(
-      "id, flat_number_display, resident_name, head_count, updated_at, edit_token_hash, is_active, event_id",
-    )
+    .select(`${PUBLIC_SELECT}, edit_token_hash, is_active, event_id`)
     .eq("event_id", eventId)
     .eq("edit_token_hash", tokenHash)
     .eq("is_active", true)
@@ -105,13 +120,7 @@ export async function getRegistrationByEditToken(token: string) {
   if (!data) return null;
   if (!verifyEditToken(token, data.edit_token_hash)) return null;
 
-  return {
-    id: data.id,
-    flatNumber: data.flat_number_display as string,
-    residentName: data.resident_name as string | null,
-    headCount: data.head_count as number,
-    updatedAt: data.updated_at as string,
-  } satisfies PublicRegistrationView;
+  return toPublicView(data);
 }
 
 export async function updateRegistrationByEditToken(
@@ -119,6 +128,7 @@ export async function updateRegistrationByEditToken(
   input: {
     flatNumber: string;
     headCount: number;
+    kidsUnder10: number;
     residentName: string | null;
   },
 ): Promise<PublicRegistrationView> {
@@ -162,9 +172,10 @@ export async function updateRegistrationByEditToken(
       flat_number_display: flatDisplay,
       resident_name: input.residentName,
       head_count: input.headCount,
+      kids_under_10: input.kidsUnder10,
     })
     .eq("id", current.id)
-    .select("id, flat_number_display, resident_name, head_count, updated_at")
+    .select(PUBLIC_SELECT)
     .single();
 
   if (error) {
@@ -172,13 +183,7 @@ export async function updateRegistrationByEditToken(
     throw new Error(error.message);
   }
 
-  return {
-    id: data.id,
-    flatNumber: data.flat_number_display,
-    residentName: data.resident_name,
-    headCount: data.head_count,
-    updatedAt: data.updated_at,
-  };
+  return toPublicView(data);
 }
 
 export async function listRegistrationsForAdmin(search?: string) {
@@ -187,9 +192,7 @@ export async function listRegistrationsForAdmin(search?: string) {
 
   let query = admin
     .from("registrations")
-    .select(
-      "id, event_id, flat_number, flat_number_display, resident_name, head_count, is_active, created_at, updated_at",
-    )
+    .select(ADMIN_SELECT)
     .eq("event_id", eventId)
     .order("created_at", { ascending: false });
 
@@ -210,6 +213,7 @@ export async function adminUpdateRegistration(
   patch: {
     flatNumber?: string;
     headCount?: number;
+    kidsUnder10?: number;
     residentName?: string | null;
     isActive?: boolean;
   },
@@ -224,6 +228,7 @@ export async function adminUpdateRegistration(
     update.flat_number = normalizeFlatNumber(display);
   }
   if (patch.headCount !== undefined) update.head_count = patch.headCount;
+  if (patch.kidsUnder10 !== undefined) update.kids_under_10 = patch.kidsUnder10;
   if (patch.residentName !== undefined) update.resident_name = patch.residentName;
   if (patch.isActive !== undefined) update.is_active = patch.isActive;
 
@@ -232,9 +237,7 @@ export async function adminUpdateRegistration(
     .update(update)
     .eq("id", id)
     .eq("event_id", eventId)
-    .select(
-      "id, event_id, flat_number, flat_number_display, resident_name, head_count, is_active, created_at, updated_at",
-    )
+    .select(ADMIN_SELECT)
     .single();
 
   if (error) {

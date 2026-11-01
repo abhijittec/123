@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     "Diwali 2026",
     "Diwali invitation",
     "resident registration",
-    "Saichethana Apartment Welfare Association",
+    "Sai Chethana Apartment Welfare Association",
   ],
   authors: [{ name: EVENT.organizer }],
   openGraph: {

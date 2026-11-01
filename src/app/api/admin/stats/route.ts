@@ -62,6 +62,10 @@ export async function GET(request: Request) {
       totals: {
         activeFlats: active.length,
         inactiveFlats: inactive.length,
+        totalKidsUnder10: active.reduce(
+          (sum, r) => sum + (r.kids_under_10 ?? 0),
+          0,
+        ),
         averageHeadCount:
           active.length === 0
             ? 0

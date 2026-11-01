@@ -165,9 +165,9 @@ insert into public.events (slug, title, event_at, venue, organizer)
 values (
   'diwali-2026',
   'SAI CHETHANA DIWALI CELEBRATION 2026',
-  '2026-11-04T19:00:00+05:30',
+  '2026-11-06T19:00:00+05:30',
   'Sai Chethana Apartment Premises',
-  'Saichethana Apartment Welfare Association'
+  'Sai Chethana Apartment Welfare Association'
 )
 on conflict (slug) do update
 set

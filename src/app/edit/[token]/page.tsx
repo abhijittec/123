@@ -14,7 +14,57 @@ type Registration = {
   flatNumber: string;
   residentName: string | null;
   headCount: number;
+  kidsUnder10: number;
 };
+
+function Stepper({
+  id,
+  value,
+  min,
+  max,
+  onChange,
+}: {
+  id: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (next: number) => void;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
+        onClick={() => onChange(Math.max(min, value - 1))}
+        aria-label="Decrease"
+      >
+        <Minus className="h-4 w-4" />
+      </Button>
+      <Input
+        id={id}
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        className="h-12 rounded-xl border-gold/25 bg-navy-deep/50 text-center"
+        required
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
+        onClick={() => onChange(Math.min(max, value + 1))}
+        aria-label="Increase"
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
 
 export default function EditRegistrationPage() {
   const params = useParams<{ token: string }>();
@@ -27,6 +77,7 @@ export default function EditRegistrationPage() {
   const [flatNumber, setFlatNumber] = useState("");
   const [residentName, setResidentName] = useState("");
   const [headCount, setHeadCount] = useState(1);
+  const [kidsUnder10, setKidsUnder10] = useState(0);
   const [formOpenedAt] = useState(() => Date.now());
 
   useEffect(() => {
@@ -46,6 +97,7 @@ export default function EditRegistrationPage() {
           setFlatNumber(reg.flatNumber);
           setResidentName(reg.residentName ?? "");
           setHeadCount(reg.headCount);
+          setKidsUnder10(reg.kidsUnder10 ?? 0);
         }
       } catch {
         if (!cancelled) setError("Network error while loading your registration");
@@ -71,6 +123,7 @@ export default function EditRegistrationPage() {
         body: JSON.stringify({
           flatNumber,
           headCount,
+          kidsUnder10,
           residentName: residentName || null,
           formOpenedAt,
         }),
@@ -83,6 +136,7 @@ export default function EditRegistrationPage() {
       setSuccess(data.message);
       setFlatNumber(data.registration.flatNumber);
       setHeadCount(data.registration.headCount);
+      setKidsUnder10(data.registration.kidsUnder10 ?? 0);
       setResidentName(data.registration.residentName ?? "");
     } catch {
       setError("Network error. Please try again.");
@@ -137,42 +191,27 @@ export default function EditRegistrationPage() {
 
             <div className="space-y-2">
               <Label htmlFor="headCount">Total Head Count</Label>
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
-                  onClick={() =>
-                    setHeadCount((v) => Math.max(REGISTRATION.minHeadCount, v - 1))
-                  }
-                  aria-label="Decrease head count"
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <Input
-                  id="headCount"
-                  type="number"
-                  min={REGISTRATION.minHeadCount}
-                  max={REGISTRATION.maxHeadCount}
-                  value={headCount}
-                  onChange={(e) => setHeadCount(Number(e.target.value))}
-                  className="h-12 rounded-xl border-gold/25 bg-navy-deep/50 text-center"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
-                  onClick={() =>
-                    setHeadCount((v) => Math.min(REGISTRATION.maxHeadCount, v + 1))
-                  }
-                  aria-label="Increase head count"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <Stepper
+                id="headCount"
+                value={headCount}
+                min={REGISTRATION.minHeadCount}
+                max={REGISTRATION.maxHeadCount}
+                onChange={(next) => {
+                  setHeadCount(next);
+                  setKidsUnder10((kids) => Math.min(kids, next));
+                }}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="kidsUnder10">Kids Under 10 Years</Label>
+              <Stepper
+                id="kidsUnder10"
+                value={kidsUnder10}
+                min={REGISTRATION.minKidsUnder10}
+                max={headCount}
+                onChange={setKidsUnder10}
+              />
             </div>
 
             <div className="space-y-2">

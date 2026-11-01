@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
         </p>
         <h1 className="mt-3 font-display text-3xl text-gold-gradient">Admin Sign In</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Authorized members of Saichethana Apartment Welfare Association only.
+          Authorized members of Sai Chethana Apartment Welfare Association only.
         </p>
       </div>
       <div className="glass-panel rounded-[2rem] p-6 sm:p-8">

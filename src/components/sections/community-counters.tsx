@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import { Home, Users } from "lucide-react";
+import { Baby, Home, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -32,6 +32,7 @@ export function CommunityCounters() {
   const [stats, setStats] = useState<{
     totalFlats: number;
     totalParticipants: number;
+    totalKidsUnder10: number;
     configured?: boolean;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export function CommunityCounters() {
           Live totals from confirmed registrations — only aggregate numbers are shown.
         </p>
 
-        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -109,6 +110,26 @@ export function CommunityCounters() {
             <p className="mt-3 font-display text-4xl text-gold-soft sm:text-5xl">
               {stats ? (
                 <AnimatedNumber value={stats.totalParticipants} />
+              ) : (
+                <Skeleton className="mx-auto h-12 w-24 bg-white/10" />
+              )}
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.15 }}
+            className="glass-panel rounded-3xl p-6 sm:p-8"
+          >
+            <Baby className="mx-auto h-6 w-6 text-marigold" aria-hidden="true" />
+            <p className="mt-4 text-xs uppercase tracking-[0.22em] text-muted-foreground">
+              Kids Under 10
+            </p>
+            <p className="mt-3 font-display text-4xl text-gold-soft sm:text-5xl">
+              {stats ? (
+                <AnimatedNumber value={stats.totalKidsUnder10 ?? 0} />
               ) : (
                 <Skeleton className="mx-auto h-12 w-24 bg-white/10" />
               )}
