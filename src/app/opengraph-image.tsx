@@ -57,6 +57,16 @@ export default function OpenGraphImage() {
         <div
           style={{
             display: "flex",
+            marginTop: 10,
+            fontSize: 24,
+            color: "#c9b896",
+          }}
+        >
+          {EVENT.taglineSupport}
+        </div>
+        <div
+          style={{
+            display: "flex",
             marginTop: 36,
             fontSize: 24,
             color: "#c9b896",

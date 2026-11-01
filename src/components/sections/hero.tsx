@@ -64,14 +64,19 @@ export function Hero() {
           {EVENT.shortTitle}
         </motion.h1>
 
-        <motion.p
+        <motion.div
           initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.6 }}
-          className="mt-4 max-w-2xl font-display text-lg text-gold-soft/90 sm:text-xl"
+          className="mt-4 max-w-2xl space-y-2"
         >
-          {EVENT.tagline}
-        </motion.p>
+          <p className="font-display text-lg tracking-[0.04em] text-gold-soft sm:text-xl">
+            {EVENT.tagline}
+          </p>
+          <p className="text-sm text-muted-foreground sm:text-base">
+            {EVENT.taglineSupport}
+          </p>
+        </motion.div>
 
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 10 }}

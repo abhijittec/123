@@ -52,6 +52,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     const registration = await adminUpdateRegistration(id, {
       flatNumber: parsed.data.flatNumber,
       headCount: parsed.data.headCount,
+      kidsUnder10: parsed.data.kidsUnder10,
       residentName: parsed.data.residentName,
       isActive: parsed.data.isActive,
     });

@@ -11,6 +11,7 @@ export function WhatsAppShareButton() {
   const shareText = [
     `🪔 ${EVENT.title}`,
     EVENT.tagline,
+    EVENT.taglineSupport,
     "",
     `${EVENT.weekday}, ${EVENT.dateLabel}`,
     EVENT.timeLabel,

@@ -28,6 +28,7 @@ function readEditPath() {
 type FieldErrors = {
   flatNumber?: string[];
   headCount?: string[];
+  kidsUnder10?: string[];
   residentName?: string[];
 };
 
@@ -35,13 +36,77 @@ type SuccessState = {
   message: string;
   flatNumber: string;
   headCount: number;
+  kidsUnder10: number;
   editPath: string;
 };
+
+function Stepper({
+  id,
+  value,
+  min,
+  max,
+  onChange,
+  describedBy,
+  invalid,
+}: {
+  id: string;
+  value: number;
+  min: number;
+  max: number;
+  onChange: (next: number) => void;
+  describedBy?: string;
+  invalid?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
+        onClick={() => value > min && onChange(value - 1)}
+        disabled={value <= min}
+        aria-label="Decrease"
+      >
+        <Minus className="h-4 w-4" />
+      </Button>
+      <Input
+        id={id}
+        name={id}
+        type="number"
+        min={min}
+        max={max}
+        value={value}
+        onChange={(e) => {
+          const next = Number(e.target.value);
+          if (Number.isNaN(next)) return;
+          onChange(Math.min(max, Math.max(min, next)));
+        }}
+        className="h-12 rounded-xl border-gold/25 bg-navy-deep/50 text-center text-lg tabular-nums"
+        aria-invalid={invalid}
+        aria-describedby={describedBy}
+        required
+      />
+      <Button
+        type="button"
+        variant="outline"
+        size="icon"
+        className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
+        onClick={() => value < max && onChange(value + 1)}
+        disabled={value >= max}
+        aria-label="Increase"
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  );
+}
 
 export function RegistrationForm() {
   const [flatNumber, setFlatNumber] = useState("");
   const [residentName, setResidentName] = useState("");
   const [headCount, setHeadCount] = useState(2);
+  const [kidsUnder10, setKidsUnder10] = useState(0);
   const [website, setWebsite] = useState("");
   const [formOpenedAt] = useState(() => Date.now());
   const [loading, setLoading] = useState(false);
@@ -57,13 +122,15 @@ export function RegistrationForm() {
   const [sessionEditPath, setSessionEditPath] = useState<string | null>(null);
   const savedEditPath = sessionEditPath ?? storedEditPath;
 
-  const canDecrement = headCount > REGISTRATION.minHeadCount;
-  const canIncrement = headCount < REGISTRATION.maxHeadCount;
-
   const helper = useMemo(
     () => `Between ${REGISTRATION.minHeadCount} and ${REGISTRATION.maxHeadCount} people`,
     [],
   );
+
+  function updateHeadCount(next: number) {
+    setHeadCount(next);
+    setKidsUnder10((kids) => Math.min(kids, next));
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -79,6 +146,7 @@ export function RegistrationForm() {
         body: JSON.stringify({
           flatNumber,
           headCount,
+          kidsUnder10,
           residentName: residentName || null,
           website,
           formOpenedAt,
@@ -106,6 +174,7 @@ export function RegistrationForm() {
         message: data.message,
         flatNumber: data.registration.flatNumber,
         headCount: data.registration.headCount,
+        kidsUnder10: data.registration.kidsUnder10,
         editPath: data.editPath,
       });
       setSessionEditPath(data.editPath);
@@ -144,6 +213,12 @@ export function RegistrationForm() {
               Total Head Count
             </p>
             <p className="mt-1 font-display text-xl text-gold-soft">{success.headCount}</p>
+          </div>
+          <div className="rounded-2xl border border-gold/20 bg-white/5 px-4 py-3">
+            <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              Kids Under 10
+            </p>
+            <p className="mt-1 font-display text-xl text-gold-soft">{success.kidsUnder10}</p>
           </div>
         </div>
         <p className="mt-6 text-sm text-muted-foreground">
@@ -193,58 +268,44 @@ export function RegistrationForm() {
           <Label htmlFor="headCount" className="text-gold-soft">
             Total Head Count <span className="text-saffron">*</span>
           </Label>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
-              onClick={() => canDecrement && setHeadCount((v) => v - 1)}
-              disabled={!canDecrement}
-              aria-label="Decrease head count"
-            >
-              <Minus className="h-4 w-4" />
-            </Button>
-            <Input
-              id="headCount"
-              name="headCount"
-              type="number"
-              min={REGISTRATION.minHeadCount}
-              max={REGISTRATION.maxHeadCount}
-              value={headCount}
-              onChange={(e) => {
-                const next = Number(e.target.value);
-                if (Number.isNaN(next)) return;
-                setHeadCount(
-                  Math.min(
-                    REGISTRATION.maxHeadCount,
-                    Math.max(REGISTRATION.minHeadCount, next),
-                  ),
-                );
-              }}
-              className="h-12 rounded-xl border-gold/25 bg-navy-deep/50 text-center text-lg tabular-nums"
-              aria-invalid={Boolean(errors.headCount)}
-              aria-describedby="headCount-help"
-              required
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              className="h-12 w-12 rounded-xl border-gold/30 bg-white/5"
-              onClick={() => canIncrement && setHeadCount((v) => v + 1)}
-              disabled={!canIncrement}
-              aria-label="Increase head count"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
+          <Stepper
+            id="headCount"
+            value={headCount}
+            min={REGISTRATION.minHeadCount}
+            max={REGISTRATION.maxHeadCount}
+            onChange={updateHeadCount}
+            describedBy="headCount-help"
+            invalid={Boolean(errors.headCount)}
+          />
           <p id="headCount-help" className="text-xs text-muted-foreground">
             {helper}
           </p>
           {errors.headCount?.[0] ? (
             <p className="text-sm text-destructive" role="alert">
               {errors.headCount[0]}
+            </p>
+          ) : null}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="kidsUnder10" className="text-gold-soft">
+            Kids Under 10 Years <span className="text-saffron">*</span>
+          </Label>
+          <Stepper
+            id="kidsUnder10"
+            value={kidsUnder10}
+            min={REGISTRATION.minKidsUnder10}
+            max={headCount}
+            onChange={setKidsUnder10}
+            describedBy="kidsUnder10-help"
+            invalid={Boolean(errors.kidsUnder10)}
+          />
+          <p id="kidsUnder10-help" className="text-xs text-muted-foreground">
+            How many children below 10 years are coming? (included in total head count)
+          </p>
+          {errors.kidsUnder10?.[0] ? (
+            <p className="text-sm text-destructive" role="alert">
+              {errors.kidsUnder10[0]}
             </p>
           ) : null}
         </div>
@@ -270,7 +331,6 @@ export function RegistrationForm() {
           ) : null}
         </div>
 
-        {/* Honeypot */}
         <div className="absolute -left-[9999px] top-auto h-0 w-0 overflow-hidden" aria-hidden="true">
           <Label htmlFor="website">Website</Label>
           <Input
@@ -284,7 +344,10 @@ export function RegistrationForm() {
         </div>
 
         {formError ? (
-          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
+          <div
+            className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            role="alert"
+          >
             <p>{formError}</p>
             {alreadyRegistered && savedEditPath ? (
               <p className="mt-2">

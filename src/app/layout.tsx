@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 
 const siteUrl = getSiteUrl();
 const title = `${EVENT.apartment} · ${EVENT.shortTitle}`;
-const description = `${EVENT.tagline}. Join residents of Sai Chethana Apartment for Diwali Celebration 2026 on ${EVENT.weekday}, ${EVENT.dateLabel} at ${EVENT.timeLabel}. Organized by ${EVENT.organizer}.`;
+const description = `${EVENT.tagline} ${EVENT.taglineSupport} Join residents of Sai Chethana Apartment for Diwali Celebration 2026 on ${EVENT.weekday}, ${EVENT.dateLabel} at ${EVENT.timeLabel}. Organized by ${EVENT.organizer}.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     "Diwali 2026",
     "Diwali invitation",
     "resident registration",
-    "Saichethana Apartment Welfare Association",
+    "Sai Chethana Apartment Welfare Association",
   ],
   authors: [{ name: EVENT.organizer }],
   openGraph: {

@@ -19,6 +19,7 @@ export async function GET(request: Request) {
       {
         totalFlats: 0,
         totalParticipants: 0,
+        totalKidsUnder10: 0,
         updatedAt: new Date().toISOString(),
         configured: false,
       },

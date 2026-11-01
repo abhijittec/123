@@ -7,9 +7,8 @@ export async function createSupabaseServerClient() {
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!url || !anonKey) {
-    throw new Error(
-      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY",
-    );
+    // Avoid crashing static prerender when public env is absent at build time.
+    throw new Error("SUPABASE_NOT_CONFIGURED");
   }
 
   const cookieStore = await cookies();

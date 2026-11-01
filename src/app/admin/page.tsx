@@ -20,9 +20,17 @@ async function AdminGate() {
     );
   }
 
-  const admin = await getAdminUser();
-  if (!admin) {
-    redirect("/admin/login");
+  try {
+    const admin = await getAdminUser();
+    if (!admin) {
+      redirect("/admin/login");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    if (message === "SUPABASE_NOT_CONFIGURED" || message.includes("Missing")) {
+      redirect("/admin/login");
+    }
+    throw error;
   }
 
   return <AdminDashboard />;

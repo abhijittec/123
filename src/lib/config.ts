@@ -4,14 +4,15 @@ export const EVENT = {
   title: "SAI CHETHANA DIWALI CELEBRATION 2026",
   shortTitle: "Happy Diwali 2026",
   apartment: "SAI CHETHANA APARTMENT",
-  tagline: "One Community, One Celebration, A Thousand Lights",
+  tagline: "✨ ONE COMMUNITY. ONE SPARK! ✨",
+  taglineSupport: "Together We Shine, Together We Celebrate.",
   /** Event start in Asia/Kolkata */
-  dateISO: "2026-11-04T19:00:00+05:30",
-  dateLabel: "4 November 2026",
-  weekday: "Wednesday",
+  dateISO: "2026-11-06T19:00:00+05:30",
+  dateLabel: "6 November 2026",
+  weekday: "Friday",
   timeLabel: "7:00 PM onwards",
   venue: "Sai Chethana Apartment Premises",
-  organizer: "Saichethana Apartment Welfare Association",
+  organizer: "Sai Chethana Apartment Welfare Association",
   timezone: "Asia/Kolkata",
   invitation:
     "With the glow of diyas and the warmth of togetherness, we cordially invite all Sai Chethana Apartment residents and their families to join our Diwali Celebration 2026. Let us come together for an evening filled with festive joy, laughter, community bonding, and beautiful memories.",
@@ -21,6 +22,7 @@ export const EVENT = {
 export const REGISTRATION = {
   minHeadCount: 1,
   maxHeadCount: Number(process.env.NEXT_PUBLIC_MAX_HEAD_COUNT ?? 30),
+  minKidsUnder10: 0,
   flatNumberMaxLength: 20,
   residentNameMaxLength: 80,
 } as const;

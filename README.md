@@ -1,9 +1,9 @@
 # Sai Chethana Diwali Celebration 2026
 
-Premium, mobile-first Diwali invitation and resident registration web app for **SAI CHETHANA APARTMENT**, organized by **Saichethana Apartment Welfare Association**.
+Premium, mobile-first Diwali invitation and resident registration web app for **SAI CHETHANA APARTMENT**, organized by **Sai Chethana Apartment Welfare Association**.
 
-**Event:** Wednesday, 4 November 2026 · 7:00 PM onwards · Sai Chethana Apartment Premises  
-**Tagline:** One Community, One Celebration, A Thousand Lights
+**Event:** Friday, 6 November 2026 · 7:00 PM onwards · Sai Chethana Apartment Premises  
+**Tagline:** ✨ ONE COMMUNITY. ONE SPARK! ✨ — Together We Shine, Together We Celebrate.
 
 ## Project structure
 
