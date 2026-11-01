@@ -18,7 +18,10 @@ alter table public.registrations
   check (kids_under_10 <= head_count);
 
 -- Aggregate kids for admin / optional future public stats
-create or replace function public.get_registration_stats(p_event_id uuid)
+-- Must drop first: Postgres cannot change OUT/return row type with CREATE OR REPLACE
+drop function if exists public.get_registration_stats(uuid);
+
+create function public.get_registration_stats(p_event_id uuid)
 returns table (
   total_flats bigint,
   total_participants bigint,
